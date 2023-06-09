@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Aug 13 17:00:06 2021
+
+@author: Jonathan
+"""
+
+from TSP_Auxilliary import RPG, CDM, DC
+from TSP_NN import nn_algorithm
+from TSP_BF import bf_algorithm
+
+num_points = 10
+
+x,y = RPG(num_points)
+distance_matrix = CDM(x,y)
+
+node_order, total = bf_algorithm(distance_matrix)
+print("Brute Force Algorithm\n"+"Distance:", str(total) +"\nNode Order:" + str(node_order) +"\n")
+DC(node_order, total, x, y, "Brute Force")
+
+node_order, total = nn_algorithm(distance_matrix)
+print("Nearest Neighbour Algorithm\n"+"Distance:", str(total) +"\nNode Order:" + str(node_order) +"\n")
+DC(node_order, total, x, y, "Nearest Neighbour")
+

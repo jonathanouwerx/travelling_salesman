@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 14 19:24:38 2021
+
+@author: Jonathan
+"""
+
+from TSP_Auxilliary import RPG, CDM, DC
+
+def minimum_spanning_tree(distance_matrix):
+    for row in range(0,len(distance_matrix)):
+            for item in range(0,len(distance_matrix)):
+                distance_matrix[row][item] = round(distance_matrix[row][item], 2)
+                if row == item:
+                    distance_matrix[row][item] = 1
+    
+    for row in distance_matrix:
+        print(row)
+    print("")
+    total = 0                
+    pairs = []
+    appearance_count = []
+    for i in range(len(distance_matrix)):
+        appearance_count.append(0)
+    
+    def find_smallest_connection(distance_matrix, total):
+        minimum = 1
+        for row in range(0,len(distance_matrix)-1):
+            for item in range(0,len(distance_matrix)):
+                if distance_matrix[row][item] < minimum:
+                    minimum = distance_matrix[row][item]
+                    location = [row, item]
+        return minimum, location
+    
+    everything_connected = False
+    
+    while everything_connected == False:
+        failure = False
+        for i in appearance_count:
+            if i == 0:
+                failure = True
+        if failure == False:
+            everything_connected = True
+            
+        minimum, location = find_smallest_connection(distance_matrix, total)
+        appearance_count[location[0]] += 1
+        appearance_count[location[1]] += 1
+        dummy_pairs = pairs.copy()
+        dummy_pairs.append(location) 
+        
+        # checks to make sure a small circuit has not been created
+        def find_next_pair(dummy_pairs, current_node, current_pair):
+            finished = False
+            for item in dummy_pairs:
+                if finished == False:
+                    if current_node == item[0]:
+                        current_node = item[1]
+                        current_pair = item.copy()
+                        finished = True
+                    elif current_node == item[1]:
+                        current_node = item[0]
+                        current_pair = item.copy()
+                        finished = True
+                        
+        
+            return current_pair, finished, current_node
+            
+        current_pair = location.copy()
+        current_node = current_pair[1]
+        chain = [location[0], location[1]]
+        count = 1
+        while count < len(chain):
+            dummy_pairs.remove(current_pair)
+            current_pair, finished, current_node = find_next_pair(dummy_pairs, current_node, current_pair)
+            if finished == True:
+                chain.append(current_node)  
+            count += 1
+    
+        valid = True
+        if chain[-1] == chain[0]:
+            valid = False
+
+        '''
+        1. output list of x and y not chain
+        2. do chain test for every item not just for location
+        '''
+     
+        #end of validation section: this needs to be fixed, but also check that the validation is implemented elsewhere
+        
+        if valid == True:
+            total += minimum
+            distance_matrix[location[0]][location[1]] = 1
+            distance_matrix[location[1]][location[0]] = 1
+
+            pairs.append(location)  
+            print(appearance_count)                     
+            print(location)
+            print(pairs)
+            for row in distance_matrix:
+                print(row)
+            print("")
+        else:
+            appearance_count[location[0]] -= 1
+            appearance_count[location[1]] -= 1
+            distance_matrix[location[0]][location[1]] = 1
+            distance_matrix[location[1]][location[0]] = 1
+    print(pairs)
+    
+    print(everything_connected)
+    print(appearance_count)
+    
+    return chain, total
+
+
+num_points = 10
+
+x,y = RPG(num_points)
+distance_matrix = CDM(x,y)
+
+chain, total = minimum_spanning_tree(distance_matrix)
+print(chain, total)
+DC(chain, total, x, y, "Greedy")
